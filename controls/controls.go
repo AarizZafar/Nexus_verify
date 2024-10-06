@@ -1,4 +1,4 @@
-package controlls
+package controls
 
 import (
 	"context"
@@ -23,12 +23,11 @@ var Collection  *mongo.Collection
 func init() {
 	fmt.Println("Establishing connection with Mongo DB ........")
 
-	clientOptions := options.Client().ApplyURI("mongodb:localhost:27017")      // creating an instance of connection to the MongoDB server 
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")      // creating an instance of connection to the MongoDB server 
 	Client, err := mongo.Connect(context.TODO(), clientOptions)                // connecting to the MongoDB server using client options 
 	handleErr(err)
 	fmt.Println("Connection established with the MongoDB server........")
 	fmt.Printf("************************************************\n")
-
 
 	fmt.Println("Checking the connection")
 	err = Client.Ping(context.TODO(), nil)
@@ -40,7 +39,7 @@ func init() {
 	fmt.Printf("Getting DB %s and the collection %s",DBname, ColName)
 	Collection = getCollection(Client)
 	fmt.Printf("Success in accessing the Data Base %s", DBname)
-	fmt.Printf("************************************************\n")
+	fmt.Printf("\n************************************************\n")
 }
 
 func handleErr(err error) {
@@ -82,6 +81,7 @@ func VerifyBiometics(c *gin.Context) {
 
 	// checking if the BioMetrics is in the DB
 	existData, err := checkBioMetrics(sysBioMetrics)
+	fmt.Println("exist Data : ", existData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error":"Error checking data"})
 		return
