@@ -1,0 +1,119 @@
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #080710;
+}
+
+.bg {
+    animation: slide 2s cubic-bezier(0.8, 0, 0.2, 1) infinite alternate;
+    background-image: linear-gradient(-60deg, #0b2447 50%, #19376d 50%);
+    bottom: 0;
+    left: -50%;
+    opacity: 0.5;
+    position: fixed;
+    right: -50%;
+    top: 0;
+    z-index: -1;
+}
+
+.bg2 {
+    animation-direction: alternate-reverse;
+    animation-duration: 4s;
+}
+
+.bg3 {
+    animation-duration: 6s;
+}
+
+.content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.login-box {
+    width: 300px;
+    padding: 40px 25px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    animation: fadeIn 1.5s ease-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center align items */
+}
+
+h3 {
+    color: #ffffff;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+label {
+    color: #c0c0c0;
+    font-size: 14px;
+    display: block;
+    margin-top: 20px;
+    text-align: center; /* Center the label text */
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 5px;
+    margin-top: 5px;
+    color: #ffffff;
+}
+
+input::placeholder {
+    color: #b0b0b0;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #19376d;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 25px;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #0b2447;
+}
+
+@keyframes slide {
+    0% {
+        transform: translateX(-20%);
+    }
+    100% {
+        transform: translateX(20%);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
