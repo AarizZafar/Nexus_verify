@@ -12,8 +12,8 @@ func Router() *gin.Engine {
 
 	router.LoadHTMLGlob("webPages/html/*")
 	
-	router.Static("webPage/css","./webPages/css")
-	router.Static("webPage/js","./webPages/js")
+	router.Static("webPages/css","./webPages/css")
+	router.Static("webPages/js","./webPages/js")
 	
 	router.GET("/",     controllers.AdminLoginPage)
 	router.POST("/verify", bioMetrix_verification.InitiateVerification)
