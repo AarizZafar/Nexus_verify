@@ -79,9 +79,7 @@ func VerifyBiometics(c *gin.Context) {
 		return
 	}
 
-	// checking if the BioMetrics is in the DB
 	existData, err := checkBioMetrics(sysBioMetrics)
-	fmt.Println("exist Data : ", existData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error":"Error checking data"})
 		return
@@ -127,6 +125,7 @@ func checkBioMetrics(sysBioMetrix model.SysBioMetrix) (*model.SysBioMetrix, erro
 
 func insertBioMetrics(sysBioMetrix model.SysBioMetrix) error {
 	fmt.Println("Inserting Device Bio Metrics")
+	fmt.Println("bio received : ", sysBioMetrix)
 	_, err := Collection.InsertOne(context.TODO(), sysBioMetrix)
 	return err
 }
