@@ -87,7 +87,8 @@ func VerifyBiometics(c *gin.Context) {
 
 	// the device biometrics is in the MongoDB, Biometrics
 	if existData != nil {
-		c.JSON(http.StatusOK, gin.H{"status":"Data verify in DB", "data" : existData})
+		fmt.Println("The device biometrics is inside the db")
+		c.JSON(http.StatusOK, gin.H{"status":"The device biometrics in registered in the network db"})
 	} else {
 		if err := insertBioMetrics(sysBioMetrics); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error" : "Failer to insert data"})
@@ -99,29 +100,32 @@ func VerifyBiometics(c *gin.Context) {
 
 func checkBioMetrics(sysBioMetrix model.SysBioMetrix) (*model.SysBioMetrix, error) {
 	var result model.SysBioMetrix
+
+	// Define filter to match the exact biometric data
 	filter := bson.M{
-		"MAC":               sysBioMetrix.MAC,
-		"CPUSerial":         sysBioMetrix.CPUSerial,
-		"HardDriveSerial":   sysBioMetrix.HardDriveSerial,
-		"MotherBoardSerial": sysBioMetrix.MotherBoardSerial,
-		"BIOSSerial":        sysBioMetrix.BIOSSerial,
-		"SSDSerial":         sysBioMetrix.SSDSerial,
-		"TPMChipID":         sysBioMetrix.TPMChipID,
-		"RAMSerial":         sysBioMetrix.RAMSerial,
-		"GPUSerial":         sysBioMetrix.GPUSerial,
-		"NICID":             sysBioMetrix.NICID,
+		"mac":               sysBioMetrix.MAC,
+		"cpuserial":         sysBioMetrix.CPUSerial,
+		"harddriveserial":   sysBioMetrix.HardDriveSerial,
+		"motherboardserial": sysBioMetrix.MotherBoardSerial,
+		"biosserial":        sysBioMetrix.BIOSSerial,
+		"ssdserial":         sysBioMetrix.SSDSerial,
+		"tpmchipid":         sysBioMetrix.TPMChipID,
+		"ramserial":         sysBioMetrix.RAMSerial,
+		"gpuserial":         sysBioMetrix.GPUSerial,
+		"nicid":             sysBioMetrix.NICID,
 	}
 
-	// query the database with the filter 
+	// Query the database to check for existing record
 	err := Collection.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, nil    // the document was not founf
+			return nil, nil // No matching document found
 		}
-		return nil, err        // we have faced some other error
+		return nil, err // Return any other error encountered
 	}
-	return &result, nil        // the document was found 
+	return &result, nil // Return the found document
 }
+
 
 func insertBioMetrics(sysBioMetrix model.SysBioMetrix) error {
 	fmt.Println("Inserting Device Bio Metrics")

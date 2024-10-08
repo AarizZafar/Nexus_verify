@@ -6,6 +6,7 @@ import (
 )
 
 func Router() *gin.Engine {
+	gin.SetMode(gin.ReleaseMode)       // to prevent unecessry output to be shown on the terminal
 	router := gin.Default() 
 
 	router.POST("/verify", controls.VerifyBiometics)
