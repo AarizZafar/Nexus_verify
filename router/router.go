@@ -16,7 +16,8 @@ func Router() *gin.Engine {
 	router.Static("webPages/js","./webPages/js")
 	
 	router.GET("/",     controllers.AdminLoginPage)
-	router.POST("/verify", bioMetrix_verification.InitiateVerification)
+	router.POST("/NetVerify", bioMetrix_verification.InitiateNetVerification)
+	router.POST("/SysVerify", bioMetrix_verification.InitiateSysVerification)
 
 	return router
 }

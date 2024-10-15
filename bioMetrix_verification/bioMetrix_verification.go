@@ -5,6 +5,10 @@ import (
 	"github.com/AarizZafar/Nexus_verify.git/bioMetrix_verification/bioMetric_verification_controls"
 )
 
-func InitiateVerification(ctx *gin.Context) {
-	bioMetric_verification_controls.VerifyBiometics(ctx)
+func InitiateNetVerification(ctx *gin.Context) {
+	bioMetric_verification_controls.VerifyNetBiometics(ctx)
+}
+
+func InitiateSysVerification(ctx *gin.Context) {
+	bioMetric_verification_controls.VerifySysBiometics(ctx)
 }

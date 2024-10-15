@@ -2,7 +2,20 @@ package model
 
 // import "go.mongodb.org/mongo-driver/bson/primitive"
 
+type NetBioMetrix struct {
+	SSID                   string `json:"SSID,omitempty"`
+	BSSID                  string `json:"BSSID,omitempty"`
+	PublicIPAdd            string `json:"PublicIPAdd,omitempty"`
+	SubNetMask 			   string `json:"SubNetMask,omitempty"`
+	IPV4_DG                string `json:"IPV4_DG,omitempty"`
+	IPV6_DG                string `json:"IPV6_DG,omitempty"`
+	Active_MAC             string `json:"Active_MAC,omitempty"`
+	Inactive_MAC           string `json:"Inactive_MAC,omitempty"`
+	Security_proto         string `json:"Security_proto,omitempty"`
+}
+
 type SysBioMetrix struct {
+	SSID                   string `json:"SSID,omitempty"`
 	MAC                    string `json:"MAC,omitempty"`
 	CPUSerial              string `json:"CPUSerial,omitempty"`
 	HardDriveSerial        string `json:"HardDriveSerial,omitempty"`
