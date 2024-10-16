@@ -1,7 +1,5 @@
 package model
 
-// import "go.mongodb.org/mongo-driver/bson/primitive"
-
 type NetBioMetrix struct {
 	SSID                   string `json:"SSID,omitempty"`
 	BSSID                  string `json:"BSSID,omitempty"`

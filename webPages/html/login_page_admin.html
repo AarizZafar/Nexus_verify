@@ -11,12 +11,23 @@
     <div class="bg bg2"></div>
     <div class="bg bg3"></div>
     <div class="content">
-        <form class="login-box">
+        <form class="login-box" method="POST" action="/login">
             <h3>Login Here</h3>
             <label for="username">Username</label>
-            <input type="text" placeholder="Email or Phone" id="username" required>
+            <input type="text" placeholder="Email or Phone" name="username" id="username" required>
+
             <label for="password">Password</label>
-            <input type="password" placeholder="Password" id="password" required>
+            <input type="password" placeholder="Password" name="password" id="password" required>
+
+            <label for="network">Network</label>
+            <input type="text" placeholder="Network" name="network" id="network" required>
+
+            <label for="testnet-name">Testnet Name</label>
+            <input type="text" placeholder="Testnet Name" name="testnet_name" id="testnet-name" required>
+
+            <label for="testnet-pass">Testnet Pass</label>
+            <input type="password" placeholder="Testnet Pass" name="testnet_pass" id="testnet-pass" required>
+
             <button type="submit">Log In</button>
         </form>
     </div>
