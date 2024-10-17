@@ -23,6 +23,5 @@ func Router() *gin.Engine {
 
 	router.POST("/login", controllers.AdminAuthentication)
 
-
 	return router
 }
