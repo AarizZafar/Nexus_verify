@@ -20,7 +20,6 @@ var SysBioClient *mongo.Client
 var SysBioCol  *mongo.Collection 
 
 func init() {
-	fmt.Println("Establishing connection with db ")
 	SysBioClient = controllers.GetMongoSession()
 }
 
@@ -30,7 +29,6 @@ func handleError(err error) {
 
 func dbColVerify(dbName string) {
 	SysBioNetDB = dbName
-	fmt.Println("SysBioNetDB ", SysBioNetDB, " SysBioNetCol ", SysBioNetCol)
 
 	SysBioCol = SysBioClient.Database(SysBioNetDB).Collection(SysBioNetCol)
 
@@ -41,7 +39,6 @@ func dbColVerify(dbName string) {
 }
 
 func VerifySysBiometics(c *gin.Context) {
-	fmt.Println("Currently the user is beeing added directly to the test net but later on the verification process will be added")
 	var sysBioMetrics model.SysBioMetrix
 
 	/* when sending the struct from the local machine 
@@ -57,7 +54,6 @@ func VerifySysBiometics(c *gin.Context) {
 	dbColVerify(sysBioMetrics.SSID)
 	
 	existData, err := checkSysBioMetrics(sysBioMetrics)
-	fmt.Println("exist data : ", existData)
 	
 	fmt.Println(err)
 	if err != nil {
@@ -66,7 +62,6 @@ func VerifySysBiometics(c *gin.Context) {
 	}
 	// the device biometrics is in the MongoDB, Biometrics
 	if existData != nil {
-		fmt.Println("The device biometrics is inside the db")
 		c.JSON(http.StatusOK, gin.H{"status":"The device biometrics in registered in the network db"})
 	} else {
 		if err := insertSysBioMetrics(sysBioMetrics); err != nil {
@@ -115,8 +110,6 @@ func checkSysBioMetrics(sysBioMetrix model.SysBioMetrix) (*model.SysBioMetrix, e
 }
 
 func insertSysBioMetrics(sysBioMetrix model.SysBioMetrix) error {
-	fmt.Println("Inserting Device Bio Metrics")
-	// fmt.Println("bio received : ", sysBioMetrix)
 	_, err := SysBioCol.InsertOne(context.TODO(), sysBioMetrix)
 	return err
 }

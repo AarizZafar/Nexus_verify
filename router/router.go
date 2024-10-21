@@ -21,6 +21,10 @@ func Router() *gin.Engine {
 	router.POST("/NetVerify", bioMetrix_verification.InitiateNetVerification)
 	router.POST("/SysVerify", bioMetrix_verification.InitiateSysVerification)
 
+	router.GET("/GetSSIDS", controllers.GetSSIDS)
+	
+	router.GET("/GetAdmincreds", controllers.GetAdminCred)
+
 	router.POST("/login", controllers.AdminAuthentication)
 
 	return router

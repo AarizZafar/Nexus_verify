@@ -22,9 +22,10 @@ var NetCollection *mongo.Collection
 func init() {
 	NetClient = controllers.GetMongoSession()
 
-	fmt.Printf("Accessing the DB %s and the collection %s\n", NetDBName, NetColName)
+	fmt.Println("\033[97;46m        ACCESS DB :", NetDBName, "COLLECTION :", NetColName, "           \033[0m")
+
 	NetCollection = getNetCollection(NetClient)
-	fmt.Printf("Success in accessing the collections %s\n", NetDBName)
+	fmt.Println("\033[97;42m        SUCCESS IN ACCESSING COLLECTION : ", NetDBName, "       ✔      \033[0m")
 }
 
 func handleErr(err error) {
@@ -50,7 +51,6 @@ func getNetCollection(client *mongo.Client) *mongo.Collection {
 }
 
 func VerifyNetBiometics(c *gin.Context) {
-	fmt.Println("The Network in beeing added as the admin has created a new network ")
 	var NetBioMetrics model.NetBioMetrix
 
 	/* when sending the struct from the local machine 
@@ -64,19 +64,18 @@ func VerifyNetBiometics(c *gin.Context) {
 
 	existData, err := checkNetBioMetrics(NetBioMetrics)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error":"Error checking data"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error":"ERROR CHECKING DATA"})
 		return
 	}
 
 	if existData != nil {
-		fmt.Println("The Network biometrix is registered in the DB")
-		c.JSON(http.StatusOK, gin.H{"status":"The Network biometrics is already registered in the Network db"})
+		c.JSON(http.StatusOK, gin.H{"status":"THE NETWORK IS REGISTERES IN NETWORK DB"})
 	} else {
 		if err := insertNetBioMetrics(NetBioMetrics); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error" : "Failer to Insert Network Biometrics data"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error" : "FAILED TO INSERT NETWORK BIOMETRICS IN THE DB"})
 			return 
 		}
-		c.JSON(http.StatusOK, gin.H{"status" : "Network Biometrix Data inserted in DB"})
+		c.JSON(http.StatusOK, gin.H{"status" : "NET BIOMETRIX INSERTED IN THE NETWORK DB"})
 	}
 }
 
@@ -108,8 +107,7 @@ func checkNetBioMetrics(NetBioMetrix model.NetBioMetrix) (*model.NetBioMetrix, e
 }
 
 func insertNetBioMetrics(NetBioMetrix model.NetBioMetrix) error {
-	fmt.Println("Inserting Network Bio Metrics")
-	fmt.Println("Net Bio Received : ", NetBioMetrix)
+	fmt.Println("\033[97;46m       INSERTING NETWORK BIOMETRIX IN NETWORK DB       \033[0m")
 	_, err := NetCollection.InsertOne(context.TODO(), NetBioMetrix)
 	return err
 }
