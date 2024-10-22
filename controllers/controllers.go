@@ -96,6 +96,7 @@ func GetdatafromDB(dbName string, colName string) ([]bson.M, error) {
     main action is sending response directly to the client the response contains the SSID encoded in JSON 
 */
 
+// this function is returning all the ssid that have been registered 
 func GetSSIDS(c *gin.Context) {
     if adminVerifyClient == nil {
         fmt.Println("\033[41m     THE MONGO CLIENT IS NOT CONNECTED     \033[0m")
@@ -126,28 +127,90 @@ func GetSSIDS(c *gin.Context) {
 }
 
 func GetAdminCred(c *gin.Context) {
+    fmt.Println("----")
     if adminVerifyClient == nil {
         fmt.Println("\033[41m     THE MONGO CLIENT IS NOT CONNECTED     \033[0m")
         return 
     }
-
+    
     AdminCreds := admins_auth.Admins_creds
-    fmt.Println("AdminCreds : ", adminsCred)
     if len(adminsCred) == 0 {
         fmt.Println("\033[41m     THE ADMINS HAVE NOT BEEN DEFINED     \033[0m")
         c.JSON(http.StatusNotFound, gin.H{"message " : " NO ADMINS DEFINED "})
         return
     }
-
+    
     c.JSON(http.StatusOK, AdminCreds)
 }
 
-func handleErr(err error) {
-	if err != nil {
-        log.Fatal("\033[97;41m", err, "\033[0m")
+// The below function returns all the testnets that are there in the ssid / network
+func GetTestNetsfromSSID(c *gin.Context) {
+    if adminVerifyClient == nil {
+        fmt.Println("\033[41m     THE MONGO CLIENT IS NOT CONNECTED     \033[0m")
+        return
+    }
+    
+    ssid := c.Query("ssid")
+	if ssid == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "SSID (database name) is required"})
+		return
 	}
+    
+    db := adminVerifyClient.Database(ssid)
+    
+    testNetCols, err := db.ListCollectionNames(context.TODO(), map[string]interface{}{})
+    if err != nil {
+        fmt.Println("\033[41m     ERROR FETCHING COLLECTIONS : ", err, "     \033[0m")
+        return
+    }
+    
+    if testNetCols == nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve collections"})
+		return
+	}
+    
+    fmt.Println(testNetCols)
+    c.JSON(http.StatusOK, gin.H{"collection" : testNetCols})
 }
 
+// the below function is returning all biometrix registered in the testnet
+func GetBioMetrixfromTestNet(c *gin.Context) {
+    if adminVerifyClient == nil {
+        fmt.Println("\033[41m     THE MONGO CLIENT IS NOT CONNECTED     \033[0m")
+        return
+    }
+    ssid     := c.Query("ssid")
+    testNet  := c.Query("testNet")
 
+    if ssid == "" || testNet == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error" : "Both ssid and testNet are required"})
+        return
+    }
 
+    testNetCol := adminVerifyClient.Database(ssid).Collection(testNet)
+    
+    cursor, err := testNetCol.Find(context.TODO(), bson.D{})
+    if err != nil {
+        fmt.Println("\033[41m     ERROR FETCHING DATA : ", err, "     \033[0m")
+        return
+    }
+    
+    var BioMetrix []bson.M
+    
+    if err := cursor.All(context.TODO(), &BioMetrix); err != nil {
+        fmt.Println("\033[41m     ERROR DECODING DATA : ", err, "     \033[0m")
+        return 
+    }
+    
+    if BioMetrix == nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve data from database"})
+    }
+    c.JSON(http.StatusOK, gin.H{"records": BioMetrix})
+}
+
+func handleErr(err error) {
+    if err != nil {
+        log.Fatal("\033[97;41m", err, "\033[0m")
+    }
+}
 

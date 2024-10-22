@@ -86,7 +86,6 @@ func checkNetBioMetrics(NetBioMetrix model.NetBioMetrix) (*model.NetBioMetrix, e
 	filter := bson.M{
 		"ssid" 				: NetBioMetrix.SSID,
 		"bssid" 			: NetBioMetrix.BSSID,
-		"publicipadd" 		: NetBioMetrix.PublicIPAdd,
 		"subnetmask" 		: NetBioMetrix.SubNetMask,
 		"ipv4_dg" 			: NetBioMetrix.IPV4_DG,
 		"ipv6_dg" 			: NetBioMetrix.IPV6_DG,

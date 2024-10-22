@@ -3,7 +3,6 @@ package model
 type NetBioMetrix struct {
 	SSID                   string `json:"SSID,omitempty"`
 	BSSID                  string `json:"BSSID,omitempty"`
-	PublicIPAdd            string `json:"PublicIPAdd,omitempty"`
 	SubNetMask 			   string `json:"SubNetMask,omitempty"`
 	IPV4_DG                string `json:"IPV4_DG,omitempty"`
 	IPV6_DG                string `json:"IPV6_DG,omitempty"`
