@@ -77,25 +77,10 @@ func checkSysBioMetrics(sysBioMetrix model.SysBioMetrix) (*model.SysBioMetrix, e
 
 	// Define filter to match the exact biometric data
 	filter := bson.M{
-		"ssid":                   sysBioMetrix.SSID,
-		"mac":                 	  sysBioMetrix.MAC,
-		"cpuserial":       		  sysBioMetrix.CPUSerial,
-		"harddriveserial":  	  sysBioMetrix.HardDriveSerial,
-		"motherboardserial":	  sysBioMetrix.MotherBoardSerial,
-		"biosserial":        	  sysBioMetrix.BIOSSerial,
-		"ssdserial":              sysBioMetrix.SSDSerial,
-		"tpmchipid":              sysBioMetrix.TPMChipID,
-		"ramserial":              sysBioMetrix.RAMSerial,
-		"gpuserial":              sysBioMetrix.GPUSerial,
-		"nicid":                  sysBioMetrix.NICID,
-		"baseboardproduct":       sysBioMetrix.BaseBoardProduct,
-		"systemuuid":             sysBioMetrix.SystemUUID,
-		"osinstallationid":       sysBioMetrix.OSInstallationID,
-		"diskvolumeserialnumber": sysBioMetrix.DiskVolumeSerialNumber,
-		"bootromversion" :        sysBioMetrix.BootROMVersion,
-		"gpuvendorid" :           sysBioMetrix.GPUVendorID,
-		"devicetreeidentifier" :  sysBioMetrix.DeviceTreeIdentifier,
-		"uefifirmwareversion" :   sysBioMetrix.UEFIFirmwareVersion,
+		"ssid":                         sysBioMetrix.SSID,
+		"mac":                          sysBioMetrix.MAC,
+		"systemserialnumber":           sysBioMetrix.SystemSerialNumber,
+		"uuid":                         sysBioMetrix.UUID,
 	}
 	
 	// Query the testNetwork to check for existing record (Device Biometrix)
@@ -113,3 +98,4 @@ func insertSysBioMetrics(sysBioMetrix model.SysBioMetrix) error {
 	_, err := SysBioCol.InsertOne(context.TODO(), sysBioMetrix)
 	return err
 }
+
