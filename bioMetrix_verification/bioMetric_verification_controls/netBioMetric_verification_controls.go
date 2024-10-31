@@ -13,8 +13,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const NetDBName = "Networks"
-const NetColName = "NetbioMetrix"
+const NetDBName 	= "Networks"
+const NetColName 	= "NetbioMetrix"
 
 var NetClient *mongo.Client
 var NetCollection *mongo.Collection

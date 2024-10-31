@@ -99,7 +99,6 @@ func GetdatafromDB(dbName string, colName string) ([]bson.M, error) {
 */
 
 // this function is returning all the ssid that have been registered
-
 func GetSSIDS(c *gin.Context) {
 	if adminVerifyClient == nil {
 		fmt.Println("\033[41m     THE MONGO CLIENT IS NOT CONNECTED     \033[0m")

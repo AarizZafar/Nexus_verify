@@ -3,7 +3,6 @@ package bioMetric_verification_controls
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/AarizZafar/Nexus_verify.git/controllers"
@@ -21,10 +20,6 @@ var SysBioCol  *mongo.Collection
 
 func init() {
 	SysBioClient = controllers.GetMongoSession()
-}
-
-func handleError(err error) {
-	log.Fatal(err)
 }
 
 func dbColVerify(dbName string) {
@@ -75,7 +70,6 @@ func VerifySysBiometics(c *gin.Context) {
 func checkSysBioMetrics(sysBioMetrix model.SysBioMetrix) (*model.SysBioMetrix, error) {
 	var result model.SysBioMetrix
 
-	// Define filter to match the exact biometric data
 	filter := bson.M{
 		"ssid":                         sysBioMetrix.SSID,
 		"mac":                          sysBioMetrix.MAC,
