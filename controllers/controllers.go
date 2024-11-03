@@ -40,38 +40,146 @@ func AdminLoginPage(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "login_page_admin.html", nil)
 }
 
+func GetSSIDAdminLogin() []string {
+	fmt.Print("\033[46m                 GET SSIDS ADMIN VERIFY                       \033[0m")
+	admVrfyClt()
+
+	NetCol := adminVerifyClient.Database("Networks").Collection("NetbioMetrix")
+	cursor, err := NetCol.Find(context.TODO(), bson.M{})
+	handleErr(err)
+
+	defer cursor.Close(context.TODO())
+
+	var SSID []string
+	for cursor.Next(context.TODO()) {
+		var record bson.M
+		err := cursor.Decode(&record)
+		handleErr(err)
+
+		if ssid, ok := record["ssid"].(string); ok {
+			SSID = append(SSID, ssid)
+		}
+	}
+	fmt.Print("\033[42m ✔  \033[0m\n")
+
+	return SSID
+}
+
+func GetTestNetsAdminLogin(ssid string) []string {
+	fmt.Print("\033[46m                GET TEST NET ADMIN VERIFY                     \033[0m")
+	admVrfyClt()
+
+	testNetCols, err := adminVerifyClient.Database(ssid).ListCollectionNames(context.TODO(), bson.M{})
+	if err != nil {
+		handleErr(err)
+		return nil
+	}
+
+	fmt.Print("\033[42m ✔  \033[0m\n")
+	return testNetCols
+}
+
+func GetBioMetxAdminlogin(ssid, testNetx string) ([]bson.M, error) {
+	fmt.Print("\033[46m               GET BIO METX ADMIN VERIFY                      \033[0m")
+	admVrfyClt()
+
+	bioMetxcol := adminVerifyClient.Database(ssid).Collection(testNetx)
+	cursor, err := bioMetxcol.Find(context.TODO(), bson.M{})
+
+	if err != nil {
+		return nil, fmt.Errorf("error finding documents: %v", err)
+	}
+
+	defer cursor.Close(context.TODO())
+
+	var records []bson.M
+	for cursor.Next(context.TODO()) {
+		var record bson.M
+		if err := cursor.Decode(&record); err != nil {
+			return nil, fmt.Errorf("error decoding document: %v", err)
+		}
+		records = append(records, record)
+	}
+
+	fmt.Print("\033[42m ✔  \033[0m\n")
+	return records, nil
+}
+
 func AdminAuthentication(ctx *gin.Context) {
-	adminName := ctx.PostForm("username")
-	adminPass := ctx.PostForm("password")
-	// network     := ctx.PostForm("network")
-	// testNetName := ctx.PostForm("testnet_name")
-	// testNetPass := ctx.PostForm("testnet_pass")
+	adminName 		:= ctx.PostForm("username")
+	adminPass 		:= ctx.PostForm("password")
+	network 		:= ctx.PostForm("network")
+	testNetName 	:= ctx.PostForm("testnet_name")
+	// testNetPass                := ctx.PostForm("testnet_pass")
 
 	passWd, exist := adminsCred[adminName]
 
-	if exist && adminPass == passWd {
-		dbName := "ZU212"     // network db name
-		colName := "testnet1" // network db collections name
+	var ssids = GetSSIDAdminLogin()
+	var regSsid bool = false
+	for _, ssid := range ssids {
+		if network == ssid {
+			regSsid = true
+			break
+		}
+	}
 
-		// adminVerifyClient = GetMongoSession()
-		data, err := GetdatafromDB(dbName, colName)
+	var testNets = GetTestNetsAdminLogin(network)
+	var regTestNet bool = false
+	for _, testNet := range testNets {
+		if testNet == testNetName {
+			regTestNet = true
+			break
+		}
+	}
+
+	var BioMetricsdata []bson.M
+	var err error
+	if regSsid && regTestNet {
+		BioMetricsdata, err = GetBioMetxAdminlogin(network, testNetName)
 		if err != nil {
 			handleErr(err)
-			ctx.HTML(http.StatusInternalServerError, "failure.html", nil)
 		}
+	}
 
-		ctx.HTML(http.StatusOK, "success_login_admin.html", gin.H{
-			"data": data,
-		})
+	if exist && adminPass == passWd {
+		if regSsid && regTestNet {
+			bioMetric := convertToBioMetric(BioMetricsdata)
+			ctx.HTML(http.StatusOK, "success_login_admin.html", gin.H{
+				"data": bioMetric,
+			})
+		} else {
+			ctx.HTML(http.StatusUnauthorized, "failure.html", nil)
+		}
 	} else {
 		ctx.HTML(http.StatusUnauthorized, "failure.html", nil)
 	}
 }
 
-func GetdatafromDB(dbName string, colName string) ([]bson.M, error) {
-	if adminVerifyClient == nil {
-		return nil, fmt.Errorf("MongoDB client is not initialized")
+type BioMetric struct {
+	ID                 string `json:"_id"`
+	MAC                string `json:"mac"`
+	SSID               string `json:"SSID"`
+	SystemSerialNumber string `json:"systemserialnumber"`
+	UUID               string `json:"uuid"`
+}
+
+func convertToBioMetric(data []bson.M) []BioMetric {
+	var bioMetrics []BioMetric
+	for _, item := range data {
+			bioMetric := BioMetric{
+				ID: 					fmt.Sprintf("%v", item["_id"]),
+				MAC: 					fmt.Sprintf("%v", item["mac"]),
+				SSID: 					fmt.Sprintf("%v", item["ssid"]),
+				SystemSerialNumber: 	fmt.Sprintf("%v", item["systemserialnumber"]),
+				UUID: 					fmt.Sprintf("%v", item["uuid"]),
+		}
+		bioMetrics = append(bioMetrics, bioMetric)
 	}
+	return bioMetrics
+}
+
+func GetdatafromDB(dbName string, colName string) ([]bson.M, error) {
+	admVrfyClt()
 
 	collection := adminVerifyClient.Database(dbName).Collection(colName)
 	cursor, err := collection.Find(context.TODO(), bson.M{})
@@ -100,10 +208,8 @@ func GetdatafromDB(dbName string, colName string) ([]bson.M, error) {
 
 // this function is returning all the ssid that have been registered
 func GetSSIDS(c *gin.Context) {
-	if adminVerifyClient == nil {
-		fmt.Println("\033[41m     THE MONGO CLIENT IS NOT CONNECTED     \033[0m")
-		return
-	}
+	fmt.Print("\033[46m                           GET SSIDS                          \033[0m")
+	admVrfyClt()
 
 	NetCol := adminVerifyClient.Database("Networks").Collection("NetbioMetrix")
 	cursor, err := NetCol.Find(context.TODO(), bson.M{})
@@ -121,15 +227,13 @@ func GetSSIDS(c *gin.Context) {
 			SSIDS = append(SSIDS, ssid)
 		}
 	}
+	fmt.Print("\033[42m ✔  \033[0m\n")
 	c.JSON(http.StatusOK, SSIDS)
 }
 
 func GetAdminCred(c *gin.Context) {
-	fmt.Println("----")
-	if adminVerifyClient == nil {
-		fmt.Println("\033[41m     THE MONGO CLIENT IS NOT CONNECTED     \033[0m")
-		return
-	}
+	fmt.Print("\033[46m                       GET ADMIN CRED                         \033[0m")
+	admVrfyClt()
 
 	AdminCreds := admins_auth.Admins_creds
 	if len(adminsCred) == 0 {
@@ -138,15 +242,14 @@ func GetAdminCred(c *gin.Context) {
 		return
 	}
 
+	fmt.Print("\033[42m ✔  \033[0m\n")
 	c.JSON(http.StatusOK, AdminCreds)
 }
 
 // The below function returns all the testnets that are there in the ssid / network
 func GetTestNetsfromSSID(c *gin.Context) {
-	if adminVerifyClient == nil {
-		fmt.Println("\033[41m     THE MONGO CLIENT IS NOT CONNECTED     \033[0m")
-		return
-	}
+	fmt.Print("\033[46m                    GET TEST NETS FROM SSID                   \033[0m")
+	admVrfyClt()
 
 	ssid := c.Query("ssid")
 	if ssid == "" {
@@ -167,16 +270,15 @@ func GetTestNetsfromSSID(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(testNetCols)
+	fmt.Print("\033[42m ✔  \033[0m\n")
 	c.JSON(http.StatusOK, gin.H{"collection": testNetCols})
 }
 
 // the below function is returning all biometrix registered in the testnet
 func GetBioMetrixfromTestNet(c *gin.Context) {
-	if adminVerifyClient == nil {
-		fmt.Println("\033[41m     THE MONGO CLIENT IS NOT CONNECTED     \033[0m")
-		return
-	}
+	fmt.Print("\033[46m                GET BIOMETRIX FROM TEST NET               \033[0m")
+	admVrfyClt()
+
 	ssid := c.Query("ssid")
 	testNet := c.Query("testNet")
 
@@ -203,10 +305,14 @@ func GetBioMetrixfromTestNet(c *gin.Context) {
 	if BioMetrix == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve data from database"})
 	}
+
+	fmt.Print("\033[42m ✔  \033[0m\n")
 	c.JSON(http.StatusOK, gin.H{"records": BioMetrix})
 }
 
 func CrtTestNetInSSID(c *gin.Context) {
+	fmt.Print("\033[46m                      CRT TEST NET IN SSID                        \033[0m")
+
 	var TestNetData struct {
 		Ssid       string             `json:"ssid"`
 		NewTestNet string             `json:"testNet"`
@@ -221,37 +327,31 @@ func CrtTestNetInSSID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Data received successfully"})
 
-	colCrt := false
-	bioMetxInserted := false
+	db := adminVerifyClient.Database(TestNetData.Ssid)
+	col := db.Collection(TestNetData.NewTestNet)
 
-	ssid := TestNetData.Ssid
-	newTestNet := TestNetData.NewTestNet
-	sysBioMetx := TestNetData.SysBioMetx
-
-	db := adminVerifyClient.Database(ssid)
-	col := db.Collection(newTestNet)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-
 	defer cancel()
 
-	_, err := col.InsertOne(ctx, sysBioMetx)
+	_, err := col.InsertOne(ctx, TestNetData.SysBioMetx)
 	if err != nil {
 		fmt.Println("Error inserting system biometrics:", err)
+		fmt.Printf("\033[41m%-10s  ERROR CREATING TESTNET '%s' IN SSID '%s'  %-10s\033[0m\n", "", TestNetData.NewTestNet, TestNetData.Ssid, "")
 		return
 	}
 
-	colCrt = true
-	bioMetxInserted = true
-
-	if colCrt && bioMetxInserted {
-		fmt.Printf("\033[42mNEW TESTNET '%s' CREATED IN SSID '%s' ✔   \033[0m\n", TestNetData.NewTestNet, TestNetData.Ssid)
-	} else {
-		fmt.Printf("\033[41m%-10s  ERROR CREATING TESTNET '%s' IN SSID '%s'  %-10s\033[0m\n", "", TestNetData.NewTestNet, TestNetData.Ssid, "")
-	}
+	fmt.Printf("\033[42m NEW TESTNET '%s' CREATED IN SSID '%s' ✔   \033[0m\n", TestNetData.NewTestNet, TestNetData.Ssid)
 }
 
 func handleErr(err error) {
 	if err != nil {
 		log.Fatal("\033[97;41m", err, "\033[0m")
+	}
+}
+
+func admVrfyClt() {
+	if adminVerifyClient == nil {
+		fmt.Println("\033[41m     THE MONGO CLIENT IS NOT CONNECTED     \033[0m")
+		return
 	}
 }

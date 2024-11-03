@@ -102,7 +102,8 @@ func checkNetBioMetrics(NetBioMetrix model.NetBioMetrix) (*model.NetBioMetrix, e
 }
 
 func insertNetBioMetrics(NetBioMetrix model.NetBioMetrix) error {
-	fmt.Println("\033[97;46m       INSERTING NETWORK BIOMETRIX IN NETWORK DB       \033[0m")
+	fmt.Print("\033[97;46m          INSERTING NETWORK BIOMETRIX IN NETWORK DB           \033[0m")
 	_, err := NetCollection.InsertOne(context.TODO(), NetBioMetrix)
+	fmt.Print("\033[42m ✔  \033[0m\n")
 	return err
 }

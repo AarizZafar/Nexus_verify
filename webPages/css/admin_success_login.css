@@ -1,44 +1,13 @@
-html, body {
-    height: 100%;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-}
-
-/* Background Effect */
-.bg {
-    animation: slide 3s ease-in-out infinite alternate;
-    background-image: linear-gradient(-60deg, #32527B 50%, #000 50%);
-    bottom: 0;
-    left: -50%;
-    opacity: 0.5;
-    position: fixed;
-    right: -50%;
-    top: 0;
-    z-index: -1;
-}
-
-.bg2 {
-    animation-direction: alternate-reverse;
-    animation-duration: 4s;
-}
-
-.bg3 {
-    animation-duration: 5s;
-}
-
 /* Welcome Text */
 .content {
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 0.25em;
     box-shadow: 0 0 0.25em rgba(0, 0, 0, 0.25);
-    padding: 10px 20px;
+    padding: 20px;
     position: absolute;
     font-family: Arial, sans-serif;
-    font-size: 1.5rem; /* Smaller font size */
-    color: #32527B;
+    font-size: 1.2rem; /* Smaller font size */
+    color: #fff; /* White text color */
     animation: slideToTopLeft 3s ease-in-out forwards;
     text-align: center;
     top: 50%;
@@ -46,26 +15,25 @@ html, body {
     transform: translate(-50%, -50%);
 }
 
-/* Animation to move to the top-left and stay there */
-@keyframes slideToTopLeft {
-    0% {
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-    100% {
-        top: 10px; /* Moves to near the top-left */
-        left: 10px;
-        transform: translate(0, 0);
-    }
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    color: white; /* Table text color to white */
 }
 
-/* Background Sliding Animation */
-@keyframes slide {
-    0% {
-        transform: translateX(-25%);
-    }
-    100% {
-        transform: translateX(25%);
-    }
+th, td {
+    border: 1px dotted #32527B; /* Dotted border for each cell */
+    padding: 10px; /* Adjusted padding for more compact spacing */
+    text-align: left;
+}
+
+th {
+    background-color: #32527B;
+    color: white;
+}
+
+td {
+    background-color: rgba(255, 255, 255, 0.2); /* Slightly transparent for readability */
 }

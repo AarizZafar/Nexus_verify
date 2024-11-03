@@ -13,12 +13,28 @@
     <div class="content">
         <h1>Welcome Admin</h1>
         <h2>Your Data:</h2>
-        <ul>
-            {{range .data}}
-                <li>{{.}}</li>
-            {{end}}
-        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>MAC</th>
+                    <th>SSID</th>
+                    <th>System Serial Number</th>
+                    <th>UUID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .data}}
+                <tr>
+                    <td>{{.ID}}</td>
+                    <td>{{.MAC}}</td>
+                    <td>{{.SSID}}</td>
+                    <td>{{.SystemSerialNumber}}</td>
+                    <td>{{.UUID}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
     </div>
 </body>
 </html>
-
