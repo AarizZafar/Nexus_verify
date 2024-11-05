@@ -106,10 +106,10 @@ func GetBioMetxAdminlogin(ssid, testNetx string) ([]bson.M, error) {
 }
 
 func AdminAuthentication(ctx *gin.Context) {
-	adminName 		:= ctx.PostForm("username")
-	adminPass 		:= ctx.PostForm("password")
-	network 		:= ctx.PostForm("network")
-	testNetName 	:= ctx.PostForm("testnet_name")
+	adminName := ctx.PostForm("username")
+	adminPass := ctx.PostForm("password")
+	network := ctx.PostForm("network")
+	testNetName := ctx.PostForm("testnet_name")
 	// testNetPass                := ctx.PostForm("testnet_pass")
 
 	passWd, exist := adminsCred[adminName]
@@ -166,12 +166,12 @@ type BioMetric struct {
 func convertToBioMetric(data []bson.M) []BioMetric {
 	var bioMetrics []BioMetric
 	for _, item := range data {
-			bioMetric := BioMetric{
-				ID: 					fmt.Sprintf("%v", item["_id"]),
-				MAC: 					fmt.Sprintf("%v", item["mac"]),
-				SSID: 					fmt.Sprintf("%v", item["ssid"]),
-				SystemSerialNumber: 	fmt.Sprintf("%v", item["systemserialnumber"]),
-				UUID: 					fmt.Sprintf("%v", item["uuid"]),
+		bioMetric := BioMetric{
+			ID:                 fmt.Sprintf("%v", item["_id"]),
+			MAC:                fmt.Sprintf("%v", item["mac"]),
+			SSID:               fmt.Sprintf("%v", item["ssid"]),
+			SystemSerialNumber: fmt.Sprintf("%v", item["systemserialnumber"]),
+			UUID:               fmt.Sprintf("%v", item["uuid"]),
 		}
 		bioMetrics = append(bioMetrics, bioMetric)
 	}
@@ -341,6 +341,59 @@ func CrtTestNetInSSID(c *gin.Context) {
 	}
 
 	fmt.Printf("\033[42m NEW TESTNET '%s' CREATED IN SSID '%s' ✔   \033[0m\n", TestNetData.NewTestNet, TestNetData.Ssid)
+}
+
+func SysBMNotPartOfNet(c *gin.Context) {
+	fmt.Print("\033[46m                  SYS BM NOT PART OF NET                      \033[0m")
+	admVrfyClt()
+
+	var BMNotPartOfNet struct {
+		Ssid          string             `json:"ssid"`
+		TestNetAccess string             `json:"testNetAccess"`
+		SysBioMetx    model.SysBioMetrix `json:"sysbioMetx"`
+	}
+
+	if err := c.ShouldBindJSON(&BMNotPartOfNet); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+		return
+	}
+
+	if BMNotPartOfNet.Ssid == "" || BMNotPartOfNet.TestNetAccess == "" || BMNotPartOfNet.SysBioMetx == (model.SysBioMetrix{}) {
+		c.JSON(http.StatusBadRequest, gin.H{"error ": "USER BM IS NOT RECEIVED THE USER IS AN INTRUDER"})
+		return
+	}
+
+	dbName := "BmNotReg"
+	colName := BMNotPartOfNet.Ssid
+
+	db := adminVerifyClient.Database(dbName)
+	col := db.Collection(colName)
+
+	data := bson.M{
+		"testNet":      BMNotPartOfNet.TestNetAccess,
+		"sysBiometric": BMNotPartOfNet.SysBioMetx,
+	}
+
+	var existingData bson.M
+	err := col.FindOne(context.TODO(), data).Decode(&existingData)
+	if err == nil {
+		c.JSON(http.StatusOK, gin.H{"message": "Biometric data already registered"})
+		return
+	} else if err != mongo.ErrNoDocuments {
+		fmt.Println("Error checking for existing system biometrics:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error checking for existing system biometrics"})
+		return
+	}
+
+	_, err = col.InsertOne(context.TODO(), data)
+	if err != nil {
+		fmt.Println("Error inserting system biometrics : ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error inserting system biometrics"})
+		return
+	}
+
+	fmt.Print("\033[42m ✔  \033[0m\n")
+	c.JSON(http.StatusOK, gin.H{"message": "Biometric data inserted successfully"})
 }
 
 func handleErr(err error) {

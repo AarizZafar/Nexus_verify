@@ -25,11 +25,13 @@ func Router() *gin.Engine {
 	
 	router.GET("/GetAdmincreds", 					controllers.GetAdminCred)
 
-	router.GET("/GetTestNetsfromSSID", 				controllers.GetTestNetsfromSSID)         // GETS ALL THE TEST NET FROM THE NETWORK, SSID
+	router.GET("/GetTestNetsfromSSID", 				controllers.GetTestNetsfromSSID)            // GETS ALL THE TEST NET FROM THE NETWORK, SSID
 
-	router.GET("/GetBioMetrixtestNet", 				controllers.GetBioMetrixfromTestNet)     // GETS ALL THE BIOMETRIX FROM THE TEST NET
+	router.GET("/GetBioMetrixtestNet", 				controllers.GetBioMetrixfromTestNet)        // GETS ALL THE BIOMETRIX FROM THE TEST NET
 
 	router.POST("/CrtTestNetInSSID", 				controllers.CrtTestNetInSSID)               // IF THE TEST NET IS NOT REGISTERED IN THE SSID CREATE ONE 
+
+	router.POST("/SysBMNotPartOfNet", 				controllers.SysBMNotPartOfNet)              // IF THE USER IS NOT PART OF THE TESTNET ADD HIM TO THE BmNotReg DB
 	
 	router.POST("/login", 							controllers.AdminAuthentication)
 
