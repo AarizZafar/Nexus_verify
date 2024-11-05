@@ -14,10 +14,15 @@ import (
 
 	"github.com/AarizZafar/Nexus_verify.git/admins_auth"
 	"github.com/AarizZafar/Nexus_verify.git/model"
+	// "github.com/AarizZafar/Nexus_verify.git/router"
 )
 
 var adminsCred = admins_auth.Admins_creds
 var adminVerifyClient *mongo.Client
+
+// THE BELOW VARIABLE WILL STORE THE VALUES OF THE BIOMETRICS THAT IS NOT REGISTERED 
+var UnregBiometric map[string]interface{}
+var Tempreg string
 
 func init() {
 	adminVerifyClient = GetMongoSession()
@@ -110,7 +115,7 @@ func AdminAuthentication(ctx *gin.Context) {
 	adminPass := ctx.PostForm("password")
 	network := ctx.PostForm("network")
 	testNetName := ctx.PostForm("testnet_name")
-	// testNetPass                := ctx.PostForm("testnet_pass")
+	regOrNonReg           := ctx.PostForm("testnet_pass")
 
 	passWd, exist := adminsCred[adminName]
 
@@ -143,16 +148,56 @@ func AdminAuthentication(ctx *gin.Context) {
 
 	if exist && adminPass == passWd {
 		if regSsid && regTestNet {
-			bioMetric := convertToBioMetric(BioMetricsdata)
-			ctx.HTML(http.StatusOK, "success_login_admin.html", gin.H{
-				"data": bioMetric,
-			})
+			if regOrNonReg == "reg" {
+				bioMetric := convertToBioMetric(BioMetricsdata)
+				ctx.HTML(http.StatusOK, "success_login_admin.html", gin.H{
+					"data": bioMetric,
+				})
+			} else if regOrNonReg == "unreg" { // here we will see the users who are not loged in 
+				Tempreg = network
+				ctx.HTML(http.StatusOK, "NonRegUsers.html", nil)
+			}
 		} else {
 			ctx.HTML(http.StatusUnauthorized, "failure.html", nil)
 		}
 	} else {
 		ctx.HTML(http.StatusUnauthorized, "failure.html", nil)
 	}
+}
+
+func GetUnregBM(c *gin.Context) {
+	fmt.Print("\033[46m                       GET UN REG BM                          \033[0m")
+	admVrfyClt()
+
+	unRegCol := adminVerifyClient.Database("BmNotReg").Collection(Tempreg)
+	cursor, err := unRegCol.Find(context.TODO(), bson.M{})
+	if err != nil {
+		fmt.Println("\033[41m     THERE WAS AN ERROR IN READING THE UNREG DB : ", err, "     \033[0m")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	var records []bson.M
+	if err = cursor.All(context.TODO(), &records); err != nil {
+		fmt.Println("\033[41m     THERE WAS AN ERROR IN DECODING THE DATA : ", err, "     \033[0m")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	fmt.Print("\033[42m ✔  \033[0m\n")
+	fmt.Println(records)
+	c.JSON(http.StatusOK, records)
+}
+
+func SetClickedRecord(c *gin.Context) {
+	var clickedUnRegBM map[string]interface{}
+	if err := c.BindJSON(&clickedUnRegBM); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error" : "Invalid data"})
+		return
+	}
+	UnregBiometric = clickedUnRegBM
+	fmt.Println("clicked Record : ", UnregBiometric)
+	c.JSON(http.StatusOK, gin.H{"status" : "Record received"})
 }
 
 type BioMetric struct {

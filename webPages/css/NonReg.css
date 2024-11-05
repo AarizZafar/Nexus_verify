@@ -1,0 +1,30 @@
+body {
+    background-color: #000;
+    color: #32527B;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: flex;
+    flex-direction: column; /* Stack blocks vertically */
+    gap: 15px;
+    padding: 20px;
+}
+
+.block {
+    background-color: #1E1E1E;
+    border: 1px solid #32527B;
+    padding: 15px;
+    width: calc(100% - 30px); /* Full width minus padding */
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.block:hover {
+    transform: scale(1.05);
+}
+
+.title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}

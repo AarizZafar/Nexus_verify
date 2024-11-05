@@ -32,6 +32,8 @@ func Router() *gin.Engine {
 	router.POST("/CrtTestNetInSSID", 				controllers.CrtTestNetInSSID)               // IF THE TEST NET IS NOT REGISTERED IN THE SSID CREATE ONE 
 
 	router.POST("/SysBMNotPartOfNet", 				controllers.SysBMNotPartOfNet)              // IF THE USER IS NOT PART OF THE TESTNET ADD HIM TO THE BmNotReg DB
+
+	router.GET("/GetUnregBM",                       controllers.GetUnregBM)
 	
 	router.POST("/login", 							controllers.AdminAuthentication)
 
